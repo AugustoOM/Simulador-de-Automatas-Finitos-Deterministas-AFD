@@ -1,30 +1,30 @@
-# **📋 Simulador de Autómatas Finitos Deterministas (AFD)**
-## **🔍 Descripción**  
+# ** Simulador de Autómatas Finitos Deterministas (AFD)**
+## ** Descripción**  
 Herramienta web interactiva para diseñar, configurar y probar Autómatas Finitos Deterministas (AFD). Permite definir estados, alfabetos, transiciones y evaluar cadenas para verificar su aceptación.
 ---
-### **🌐 Sitio Web**
+### **Sitio Web**
 https://automatafinito.netlify.app/
 ---
 
-## **✨ Características**  
-✅ **Configuración visual del AFD**:  
+## ** Características**  
+   **Configuración visual del AFD**:  
    - Define estados, símbolos del alfabeto, estado inicial y finales.  
    - Genera tablas de transiciones dinámicamente.  
 
-✅ **Simulación paso a paso**:  
+    **Simulación paso a paso**:  
    - Prueba cadenas y observa el camino recorrido.  
    - Resultados claros (aceptación/rechazo + ruta de estados).  
 
-✅ **Interfaz intuitiva**:  
+    **Interfaz intuitiva**:  
    - Diseño responsive (funciona en móviles y desktop).  
    - Feedback visual con Bootstrap.  
 
-✅ **Sin dependencias externas**:  
+    **Sin dependencias externas**:  
    - Solo requiere un navegador moderno.  
 ---
-# **📌 Cómo Usar el Simulador de AFD**  
+# ** Cómo Usar el Simulador de AFD**  
 
-### **1️⃣ Configuración del Autómata**  
+### ** 1 Configuración del Autómata**  
 1. **Estados**:  
    - Ingresa los nombres de los estados **separados por comas** (ej: `q0,q1,q2` o `A,B,C`).  
 2. **Alfabeto**:  
@@ -36,24 +36,24 @@ https://automatafinito.netlify.app/
 5. **Estados finales**:  
    - Ingresa los estados de aceptación **separados por comas** (ej: `q0` o `A,C`).  
 
-### **2️⃣ Define las Transiciones**  
+### ** Define las Transiciones**  
 - Completa la tabla generada:  
   - Para cada estado (`q0`, `q1`, etc.) y cada símbolo (`0`, `a`, `x`, etc.), selecciona el **estado destino**.  
   - Ejemplo para un AFD que cuenta "a"s pares:  
     - Desde `q0`: `a → q1`, `b → q0`, `c → q0`.  
     - Desde `q1`: `a → q0`, `b → q1`, `c → q1`.  
 
-### **3️⃣ Prueba Cadenas**  
+### ** Prueba Cadenas**  
 1. Escribe una cadena en el campo **"Cadena a evaluar"** (ej: `aab`, `101`, `xyz`).  
 2. Haz clic en **"Probar Cadena"**.  
 3. **Resultado**:  
-   - ✅ **Aceptada**: Si termina en un estado final.  
-   - ❌ **Rechazada**: Si termina en un estado no final.  
-   - 📜 **Camino**: Se muestra la secuencia de estados recorridos.  
+   -  **Aceptada**: Si termina en un estado final.  
+   -  **Rechazada**: Si termina en un estado no final.  
+   -  **Camino**: Se muestra la secuencia de estados recorridos.  
 
 ---
 
-### **🌐 Ejemplos Prácticos**  
+### ** Ejemplos Prácticos**  
 #### **Ejemplo 1: AFD que acepta cadenas con número par de "1"s**  
 - **Estados**: `q0, q1`  
 - **Alfabeto**: `0,1`  
@@ -79,7 +79,7 @@ https://automatafinito.netlify.app/
 
 ---
 
-### **💡 Consejos**  
+### ** Consejos**  
 - Usa **símbolos únicos** (ej: `a, b` en lugar de `ab, bc`).  
 - Los estados pueden llamarse como quieras (`q0`, `A`, `S1`, etc.).  
 - Si el autómata no funciona, verifica:  
@@ -88,7 +88,7 @@ https://automatafinito.netlify.app/
 
 ---
 
-## **🛠️ Tecnologías**  
+## ** Tecnologías**  
 - **Frontend**:  
   ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white)  
   ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white)  
@@ -101,7 +101,7 @@ https://automatafinito.netlify.app/
 
 ---
 
-## **📂 Estructura del Proyecto**  
+## ** Estructura del Proyecto**  
 ```
 simulador-afd/
 ├── index.html          # Página principal
@@ -109,12 +109,12 @@ simulador-afd/
 ├── main.js             # Lógica del simulador AFD
 └── README.md           # Este archivo
 ```
-🎨 Capturas de Pantalla
+Capturas de Pantalla
 ![image](https://github.com/user-attachments/assets/32d65b51-e0e2-4755-a8fa-f5c6eb5e8cf0)
 
 ---
 
-## **🔧 Instalación**  
+## ** Instalación**  
 1. Clona el repositorio:  
    ```bash
      https://github.com/MarkoEv/Simulador-de-Automatas-Finitos-Deterministas-AFD.git
@@ -124,7 +124,7 @@ simulador-afd/
 
 ---
 
-## **🎯 Ejemplo de AFD Preconfigurado**  
+## ** Ejemplo de AFD Preconfigurado**  
 ### **AFD que acepta cadenas con número par de "1"s**  
 - **Estados**: `q0, q1`  
 - **Alfabeto**: `0, 1`  
@@ -140,16 +140,16 @@ simulador-afd/
 
 ---
 
-## **📄 Licencia**  
+## ** Licencia**  
 Sin licencia  
 
 --- 
 
-## **🙌 Contribuciones**  
+## ** Contribuciones**  
 ¡Las contribuciones son bienvenidas! Si deseas mejorar el código o reportar un problema, abre un **Issue** o envía un **Pull Request**.  
 
 ---
 
-## **📌 Notas**  
+## ** Notas**  
 - Ideal para estudiantes de ING.EN SISTEMAS COMPUTACIONALES.    
 
