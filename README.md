@@ -153,3 +153,40 @@ Sin licencia
 ## ** Notas**  
 - Ideal para estudiantes de ING.EN SISTEMAS COMPUTACIONALES.    
 
+---
+
+## **Despliegue en AWS Amplify**
+
+Se incluyen archivos de configuración para desplegar este sitio estático en **AWS Amplify Console**.
+
+- Archivo de build: [amplify.yml](amplify.yml)
+- Metadatos npm: [package.json](package.json)
+
+Opciones para publicar:
+
+- **Opción A — Amplify Console (recomendado)**
+   - Entra a https://console.aws.amazon.com/amplify/ y conecta tu repositorio Git.
+   - Amplify detectará el `amplify.yml` y publicará el sitio estático directamente.
+
+- **Opción B — Amplify CLI (local)**
+   - Instala Amplify CLI y configura tus credenciales AWS:
+      ```bash
+      npm install -g @aws-amplify/cli
+      amplify configure
+      ```
+   - Inicializa el proyecto Amplify en este repositorio (sigue las preguntas interactivas):
+      ```bash
+      amplify init
+      ```
+   - Agrega hosting y publica:
+      ```bash
+      amplify add hosting
+      amplify publish
+      ```
+
+Notas:
+- Este proyecto es un sitio estático (HTML/CSS/JS) y no requiere pasos de build; `amplify.yml` contiene comandos mínimos para Amplify Console.
+- Si usas una rama diferente a `main`/`master`, selecciona la rama correcta cuando conectes el repositorio en Amplify Console.
+
+¿Quieres que también cree un flujo de GitHub Actions para desplegar vía CI/CD a Amplify? (puedo añadirlo si lo deseas)
+

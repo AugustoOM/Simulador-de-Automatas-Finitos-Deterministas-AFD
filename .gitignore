@@ -1,0 +1,5 @@
+node_modules/
+.amplify/
+.aws-amplify/
+dist/
+.DS_Store
