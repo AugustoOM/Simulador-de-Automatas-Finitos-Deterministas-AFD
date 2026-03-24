@@ -141,8 +141,6 @@ Para más detalle sobre flujos con Amplify CLI u opciones avanzadas, revisa la d
 
 ---
 
-### Captura de pantalla (referencia)
+### Captura de pantalla
 
-![Vista del simulador](https://github.com/user-attachments/assets/32d65b51-e0e2-4755-a8fa-f5c6eb5e8cf0)
-
-> La interfaz actual incluye diagrama con Cytoscape, tema claro/oscuro y estilos actualizados; la captura puede no coincidir al 100 % con la versión más reciente.
+![Vista del simulador](ejemploo.png)
