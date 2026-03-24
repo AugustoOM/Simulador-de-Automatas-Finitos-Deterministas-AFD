@@ -1,357 +1,275 @@
-// Objeto para guardar los datos del AFD
-const afd = {
-  estados: [],
-  alfabeto: [],
-  estadoInicial: '',
-  estadosFinales: [],
-  transiciones: {}
-};
+const ACCENT_COLOR = '#5a10c1';
 
-/** Instancia de Cytoscape para el diagrama de transición */
-let cy = null;
+const { createApp, nextTick } = Vue;
 
-const ESTILO_CYTOSCAPE = [
-  {
-    selector: 'node',
-    style: {
-      label: 'data(label)',
-      'text-valign': 'center',
-      'text-halign': 'center',
-      'background-color': '#ffffff',
-      'border-width': 2,
-      'border-color': '#212529',
-      width: 46,
-      height: 46,
-      'font-size': '13px',
-      color: '#212529'
-    }
+createApp({
+  data() {
+    return {
+      theme: 'light',
+      generado: false,
+      estadosInput: '',
+      alfabetoInput: '',
+      estadosFinalesInput: '',
+      cadenaPrueba: '',
+      resultado: {
+        visible: false,
+        aceptada: false,
+        mensaje: '',
+        camino: []
+      },
+      afd: {
+        estados: [],
+        alfabeto: [],
+        estadoInicial: '',
+        estadosFinales: [],
+        transiciones: {}
+      },
+      cy: null
+    };
   },
-  {
-    selector: 'node[isInitial]',
-    style: {
-      'border-width': 4,
-      'border-color': '#0d6efd'
-    }
-  },
-  {
-    selector: 'node[isFinal]',
-    style: {
-      'background-color': '#d1e7dd',
-      'border-width': 4,
-      'border-color': '#198754'
-    }
-  },
-  {
-    selector: 'node[isInitial][isFinal]',
-    style: {
-      'border-color': '#6f42c1',
-      'background-color': '#e7d5ff'
-    }
-  },
-  {
-    selector: 'node.path',
-    style: {
-      'background-color': '#fff3cd',
-      'border-color': '#fd7e14',
-      'border-width': 4
-    }
-  },
-  {
-    selector: 'edge',
-    style: {
-      width: 2,
-      'line-color': '#495057',
-      'target-arrow-color': '#495057',
-      'target-arrow-shape': 'triangle',
-      'curve-style': 'bezier',
-      'arrow-scale': 1,
-      label: 'data(label)',
-      'font-size': '11px',
-      color: '#212529',
-      'text-background-color': '#ffffff',
-      'text-background-opacity': 0.9,
-      'text-background-padding': '3px'
-    }
-  },
-  {
-    selector: 'edge.path',
-    style: {
-      width: 4,
-      'line-color': '#fd7e14',
-      'target-arrow-color': '#fd7e14',
-      'z-index': 999
-    }
-  }
-];
-
-function transicionesYaGeneradas() {
-  return Boolean(document.getElementById('transicionesContainer').querySelector('select[id^="trans-"]'));
-}
-
-function iniciar() {
-  document.getElementById('generarTransicionesBtn').addEventListener('click', generarTransiciones);
-  document.getElementById('probarAFDBtn').addEventListener('click', probarCadena);
-  document.getElementById('transicionesContainer').addEventListener('change', (e) => {
-    if (e.target.matches('select[id^="trans-"]')) {
-      sincronizarAFDDesdeDOM();
-      actualizarDiagrama();
-    }
-  });
-  document.getElementById('estadoInicial').addEventListener('change', () => {
-    if (transicionesYaGeneradas()) {
-      sincronizarAFDDesdeDOM();
-      actualizarDiagrama();
-    }
-  });
-  document.getElementById('estadosFinales').addEventListener('input', () => {
-    if (transicionesYaGeneradas()) {
-      sincronizarAFDDesdeDOM();
-      actualizarDiagrama();
-    }
-  });
-}
-
-function obtenerCytoscape() {
-  if (typeof cytoscape === 'undefined') {
-    return null;
-  }
-  if (!cy) {
-    cy = cytoscape({
-      container: document.getElementById('cy'),
-      style: ESTILO_CYTOSCAPE,
-      minZoom: 0.25,
-      maxZoom: 2.5,
-      wheelSensitivity: 0.35
-    });
-    cy.on('tap', () => cy.elements().removeClass('path'));
-    window.addEventListener('resize', () => {
-      if (cy) cy.resize();
-    });
-  }
-  return cy;
-}
-
-/** Lee estado inicial, finales y tabla de transiciones desde el DOM */
-function sincronizarAFDDesdeDOM() {
-  const inicialEl = document.getElementById('estadoInicial');
-  afd.estadoInicial = inicialEl ? inicialEl.value : '';
-  const finalesRaw = document.getElementById('estadosFinales').value;
-  afd.estadosFinales = finalesRaw
-    .split(',')
-    .map((e) => e.trim())
-    .filter(Boolean);
-
-  afd.transiciones = {};
-  afd.estados.forEach((estado) => {
-    afd.transiciones[estado] = {};
-    afd.alfabeto.forEach((simbolo) => {
-      const select = document.getElementById(`trans-${estado}-${simbolo}`);
-      if (select) {
-        afd.transiciones[estado][simbolo] = select.value;
+  watch: {
+    'afd.estadoInicial'() {
+      if (this.generado) this.actualizarDiagrama();
+    },
+    estadosFinalesInput() {
+      if (!this.generado) return;
+      this.sincronizarFinales();
+      this.actualizarDiagrama();
+    },
+    'afd.transiciones': {
+      deep: true,
+      handler() {
+        if (this.generado) this.actualizarDiagrama();
       }
-    });
-  });
-}
+    }
+  },
+  methods: {
+    alternarThemeEnDOM() {
+      document.body.setAttribute('data-theme', this.theme);
+      document.documentElement.setAttribute('data-bs-theme', this.theme);
+    },
+    toggleTheme() {
+      this.theme = this.theme === 'dark' ? 'light' : 'dark';
+      this.alternarThemeEnDOM();
+      if (this.generado) this.actualizarDiagrama();
+    },
+    parseLista(valor) {
+      return valor.split(',').map((x) => x.trim()).filter(Boolean);
+    },
+    sincronizarFinales() {
+      const finales = this.parseLista(this.estadosFinalesInput);
+      this.afd.estadosFinales = finales.filter((e) => this.afd.estados.includes(e));
+    },
+    generarTransiciones() {
+      const estados = this.parseLista(this.estadosInput);
+      const alfabeto = this.parseLista(this.alfabetoInput);
 
-function construirElementosGrafo() {
-  const nodes = afd.estados.map((id) => {
-    const data = { id, label: id };
-    if (id === afd.estadoInicial) data.isInitial = true;
-    if (afd.estadosFinales.includes(id)) data.isFinal = true;
-    return { data };
-  });
+      if (!estados.length || !alfabeto.length) {
+        window.alert('Por favor ingresa estados y alfabeto primero');
+        return;
+      }
 
-  const edges = [];
-  afd.estados.forEach((origen) => {
-    afd.alfabeto.forEach((simbolo) => {
-      const destino = afd.transiciones[origen]?.[simbolo];
-      if (!destino) return;
-      edges.push({
-        data: {
-          id: `e-${origen}-${destino}-${simbolo}`,
-          source: origen,
-          target: destino,
-          label: simbolo
-        }
+      this.afd.estados = estados;
+      this.afd.alfabeto = alfabeto;
+      this.afd.estadoInicial = estados[0];
+      this.sincronizarFinales();
+
+      const transiciones = {};
+      estados.forEach((estado) => {
+        transiciones[estado] = {};
+        alfabeto.forEach((simbolo) => {
+          transiciones[estado][simbolo] = estados[0];
+        });
       });
-    });
-  });
+      this.afd.transiciones = transiciones;
 
-  return { nodes, edges };
-}
+      this.resultado.visible = false;
+      this.generado = true;
 
-function mostrarContenedorDiagrama(visible) {
-  const placeholder = document.getElementById('diagramaPlaceholder');
-  const container = document.getElementById('cy');
-  if (visible) {
-    placeholder.classList.add('d-none');
-    container.classList.remove('d-none');
-  } else {
-    placeholder.classList.remove('d-none');
-    container.classList.add('d-none');
-  }
-}
+      nextTick(() => this.actualizarDiagrama());
+    },
+    obtenerEstiloCytoscape() {
+      const isDark = this.theme === 'dark';
+      const textColor = isDark ? '#f1f3f5' : '#212529';
+      const cardBg = isDark ? '#1f2432' : '#ffffff';
+      const edgeColor = isDark ? '#c2c8d0' : '#495057';
 
-/**
- * Dibuja el AFD. Opcionalmente resalta el camino seguido al probar una cadena.
- * @param {{ camino?: string[], cadena?: string } | undefined} resaltar
- */
-function actualizarDiagrama(resaltar) {
-  if (!afd.estados.length || !afd.alfabeto.length) {
-    mostrarContenedorDiagrama(false);
-    return;
-  }
-
-  const instancia = obtenerCytoscape();
-  if (!instancia) {
-    mostrarContenedorDiagrama(false);
-    return;
-  }
-
-  sincronizarAFDDesdeDOM();
-  const { nodes, edges } = construirElementosGrafo();
-  instancia.elements().remove();
-  instancia.add([...nodes, ...edges]);
-
-  instancia.elements().removeClass('path');
-
-  if (resaltar?.camino?.length && resaltar.cadena !== undefined) {
-    const camino = resaltar.camino;
-    const cadena = resaltar.cadena;
-    for (let i = 0; i < camino.length; i++) {
-      const n = instancia.getElementById(camino[i]);
-      if (n.length) n.addClass('path');
-    }
-    for (let i = 0; i < cadena.length; i++) {
-      const desde = camino[i];
-      const simbolo = cadena[i];
-      const edgeId = `e-${desde}-${afd.transiciones[desde][simbolo]}-${simbolo}`;
-      const e = instancia.getElementById(edgeId);
-      if (e.length) e.addClass('path');
-    }
-  }
-
-  instancia.layout({
-    name: 'circle',
-    fit: true,
-    padding: 48,
-    animate: true,
-    animationDuration: 350
-  }).run();
-
-  mostrarContenedorDiagrama(true);
-}
-
-// Genera los campos para las transiciones
-function generarTransiciones() {
-  afd.estados = document.getElementById('estados').value.split(',').map((e) => e.trim()).filter(Boolean);
-  afd.alfabeto = document.getElementById('alfabeto').value.split(',').map((a) => a.trim()).filter(Boolean);
-
-  if (afd.estados.length === 0 || afd.alfabeto.length === 0) {
-    alert('Por favor ingresa estados y alfabeto primero');
-    return;
-  }
-
-  const selectInicial = document.getElementById('estadoInicial');
-  selectInicial.innerHTML = '';
-  afd.estados.forEach((estado) => {
-    const option = document.createElement('option');
-    option.value = estado;
-    option.textContent = estado;
-    selectInicial.appendChild(option);
-  });
-
-  const container = document.getElementById('transicionesContainer');
-  container.innerHTML = '';
-
-  afd.estados.forEach((estado) => {
-    const div = document.createElement('div');
-    div.className = 'mb-3 p-2 border';
-    div.innerHTML = `<h5 class="fw-bold">Desde ${estado}:</h5>`;
-
-    afd.alfabeto.forEach((simbolo) => {
-      div.innerHTML += `
-        <div class="input-group mb-2">
-          <span class="input-group-text">${simbolo} →</span>
-          <select id="trans-${estado}-${simbolo}" class="form-select">
-            ${afd.estados.map((e) => `<option value="${e}">${e}</option>`).join('')}
-          </select>
-        </div>
-      `;
-    });
-
-    container.appendChild(div);
-  });
-
-  sincronizarAFDDesdeDOM();
-  actualizarDiagrama();
-}
-
-// Prueba una cadena con el AFD configurado
-function probarCadena() {
-  afd.estadoInicial = document.getElementById('estadoInicial').value;
-  afd.estadosFinales = document.getElementById('estadosFinales').value.split(',').map((e) => e.trim()).filter(Boolean);
-  const cadena = document.getElementById('cadenaPrueba').value;
-
-  if (!afd.estadoInicial || afd.estadosFinales.length === 0) {
-    alert('Configura el AFD completamente primero');
-    return;
-  }
-
-  afd.transiciones = {};
-  afd.estados.forEach((estado) => {
-    afd.transiciones[estado] = {};
-    afd.alfabeto.forEach((simbolo) => {
-      const select = document.getElementById(`trans-${estado}-${simbolo}`);
-      if (select) {
-        afd.transiciones[estado][simbolo] = select.value;
+      return [
+        {
+          selector: 'node',
+          style: {
+            label: 'data(label)',
+            'text-valign': 'center',
+            'text-halign': 'center',
+            'background-color': cardBg,
+            color: textColor,
+            'border-width': 2,
+            'border-color': textColor,
+            width: 48,
+            height: 48
+          }
+        },
+        {
+          selector: 'node[isInitial]',
+          style: {
+            'border-width': 4,
+            'border-color': ACCENT_COLOR
+          }
+        },
+        {
+          selector: 'node[isFinal]',
+          style: {
+            'border-width': 4,
+            'border-color': '#20a66a'
+          }
+        },
+        {
+          selector: 'node.path',
+          style: {
+            'background-color': '#ffd8a8',
+            'border-color': '#fd7e14'
+          }
+        },
+        {
+          selector: 'edge',
+          style: {
+            width: 2,
+            'line-color': edgeColor,
+            'target-arrow-color': edgeColor,
+            'target-arrow-shape': 'triangle',
+            'curve-style': 'bezier',
+            label: 'data(label)',
+            color: textColor,
+            'text-background-color': cardBg,
+            'text-background-opacity': 0.9,
+            'text-background-padding': '3px'
+          }
+        },
+        {
+          selector: 'edge.path',
+          style: {
+            width: 4,
+            'line-color': '#fd7e14',
+            'target-arrow-color': '#fd7e14'
+          }
+        }
+      ];
+    },
+    obtenerCy() {
+      if (typeof cytoscape === 'undefined') return null;
+      if (!this.cy) {
+        this.cy = cytoscape({
+          container: document.getElementById('cy'),
+          minZoom: 0.25,
+          maxZoom: 2.5,
+          wheelSensitivity: 0.35
+        });
+        this.cy.on('tap', () => this.cy.elements().removeClass('path'));
+        window.addEventListener('resize', () => {
+          if (this.cy) this.cy.resize();
+        });
       }
-    });
-  });
+      return this.cy;
+    },
+    construirGrafo() {
+      const nodes = this.afd.estados.map((id) => {
+        const data = { id, label: id };
+        if (id === this.afd.estadoInicial) data.isInitial = true;
+        if (this.afd.estadosFinales.includes(id)) data.isFinal = true;
+        return { data };
+      });
 
-  let estadoActual = afd.estadoInicial;
-  const camino = [estadoActual];
+      const edges = [];
+      this.afd.estados.forEach((origen) => {
+        this.afd.alfabeto.forEach((simbolo) => {
+          const destino = this.afd.transiciones[origen][simbolo];
+          edges.push({
+            data: {
+              id: `e-${origen}-${destino}-${simbolo}`,
+              source: origen,
+              target: destino,
+              label: simbolo
+            }
+          });
+        });
+      });
 
-  for (let i = 0; i < cadena.length; i++) {
-    const simbolo = cadena[i];
-    if (!afd.alfabeto.includes(simbolo)) {
-      mostrarResultado(false, `El símbolo '${simbolo}' no es válido`, camino);
-      actualizarDiagrama({ camino, cadena: cadena.slice(0, i) });
-      return;
+      return { nodes, edges };
+    },
+    actualizarDiagrama(resaltar) {
+      if (!this.generado) return;
+      const instancia = this.obtenerCy();
+      if (!instancia) return;
+
+      const { nodes, edges } = this.construirGrafo();
+      instancia.style(this.obtenerEstiloCytoscape());
+      instancia.elements().remove();
+      instancia.add([...nodes, ...edges]);
+      instancia.elements().removeClass('path');
+
+      if (resaltar?.camino?.length && typeof resaltar.cadena === 'string') {
+        for (let i = 0; i < resaltar.camino.length; i++) {
+          const nodo = instancia.getElementById(resaltar.camino[i]);
+          if (nodo.length) nodo.addClass('path');
+        }
+        for (let i = 0; i < resaltar.cadena.length; i++) {
+          const desde = resaltar.camino[i];
+          const simbolo = resaltar.cadena[i];
+          const hasta = this.afd.transiciones[desde][simbolo];
+          const edge = instancia.getElementById(`e-${desde}-${hasta}-${simbolo}`);
+          if (edge.length) edge.addClass('path');
+        }
+      }
+
+      instancia.layout({
+        name: 'circle',
+        fit: true,
+        padding: 48,
+        animate: true,
+        animationDuration: 300
+      }).run();
+    },
+    probarCadena() {
+      if (!this.generado) return;
+      if (!this.afd.estadoInicial || !this.afd.estadosFinales.length) {
+        window.alert('Configura el AFD completamente primero');
+        return;
+      }
+
+      let estadoActual = this.afd.estadoInicial;
+      const camino = [estadoActual];
+      const cadena = this.cadenaPrueba;
+
+      for (let i = 0; i < cadena.length; i++) {
+        const simbolo = cadena[i];
+
+        if (!this.afd.alfabeto.includes(simbolo)) {
+          this.resultado = {
+            visible: true,
+            aceptada: false,
+            mensaje: `El símbolo '${simbolo}' no es válido`,
+            camino
+          };
+          this.actualizarDiagrama({ camino, cadena: cadena.slice(0, i) });
+          return;
+        }
+
+        const siguiente = this.afd.transiciones[estadoActual][simbolo];
+        estadoActual = siguiente;
+        camino.push(estadoActual);
+      }
+
+      const aceptada = this.afd.estadosFinales.includes(estadoActual);
+      this.resultado = {
+        visible: true,
+        aceptada,
+        mensaje: `La cadena "${cadena}" fue ${aceptada ? 'ACEPTADA' : 'RECHAZADA'}`,
+        camino
+      };
+      this.actualizarDiagrama({ camino, cadena });
     }
-
-    const siguienteEstado = afd.transiciones[estadoActual][simbolo];
-
-    if (!siguienteEstado) {
-      mostrarResultado(false, `No hay transición para '${simbolo}' desde '${estadoActual}'`, camino);
-      actualizarDiagrama({ camino, cadena: cadena.slice(0, i) });
-      return;
-    }
-
-    estadoActual = siguienteEstado;
-    camino.push(estadoActual);
+  },
+  mounted() {
+    this.alternarThemeEnDOM();
   }
-
-  const aceptada = afd.estadosFinales.includes(estadoActual);
-  mostrarResultado(
-    aceptada,
-    `La cadena "${cadena}" fue ${aceptada ? 'ACEPTADA' : 'RECHAZADA'}`,
-    camino
-  );
-  actualizarDiagrama({ camino, cadena });
-}
-
-// Muestra el resultado en pantalla
-function mostrarResultado(aceptada, mensaje, camino) {
-  const resultadoDiv = document.getElementById('resultado');
-  const resultadoTexto = document.getElementById('resultadoTexto');
-  const caminoTexto = document.getElementById('caminoTexto');
-
-  resultadoDiv.className = aceptada ? 'alert alert-success' : 'alert alert-danger';
-  resultadoDiv.classList.remove('d-none');
-
-  resultadoTexto.textContent = mensaje;
-  caminoTexto.textContent = `Camino: ${camino.join(' → ')}`;
-}
-
-document.addEventListener('DOMContentLoaded', iniciar);
+}).mount('#app');

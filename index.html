@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -13,117 +13,124 @@
 </head>
 
 <body>
-    <div class="container py-4">
-        <header class="text-center mb-5">
-            <h1 class="display-4 text-primary">AFD</h1>
-            <p class="lead text-secondary">Autómatas Finitos Deterministas</p>
-            <!-- autor -->
-            <p class="text-muted">Desarrollado por <a href="" target="_blank">@MarkoEv</a></p>
+    <div id="app" class="container py-4" v-cloak>
+        <button class="theme-toggle-btn" @click="toggleTheme">
+            {{ theme === 'dark' ? '☀️ Claro' : '🌙 Oscuro' }}
+        </button>
+        <header class="text-center mb-4">
+            <h1 class="display-4 app-accent">AFD</h1>
+            <p class="lead app-subtitle">Autómatas Finitos Deterministas</p>
             <div class="d-flex justify-content-center flex-wrap gap-2 mt-2">
-                <a class="btn btn-outline-dark btn-sm"
-                    href="https://github.com/Joaco981" target="_blank"
-                    rel="noopener noreferrer">
-                    Joaquin Augusto Flores
+                <a class="btn btn-outline-secondary btn-sm" href="https://github.com/AugustoOM" target="_blank" rel="noopener noreferrer">
+                    Augusto
                 </a>
-                <a class="btn btn-outline-dark btn-sm"
-                    href="https://github.com/AugustoOM" target="_blank"
-                    rel="noopener noreferrer">
-                    Augusto Ojeda Mathe
+                <a class="btn btn-outline-secondary btn-sm" href="https://github.com/Joaco981" target="_blank" rel="noopener noreferrer">
+                    Joaquin
+                </a>
+                <a class="btn btn-outline-secondary btn-sm" href="https://github.com/MarkoEv" target="_blank" rel="noopener noreferrer">
+                    Marko
                 </a>
             </div>
         </header>
 
         <div class="row">
-            <!-- Panel de configuración -->
-            <div class="col-md-3 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-default text-white">
-                        <h2 class="h5 mb-0 text-dark">Configuración de <b>AFD</b></h2>
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm app-card">
+                    <div class="card-header app-card-header">
+                        <h2 class="h5 mb-0">Configuración de AFD</h2>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="estados" class="form-label">Estados del autómata</label>
-                            <input type="text" class="form-control" id="estados" placeholder="Ej: q0,q1,q2">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="alfabeto" class="form-label">Alfabeto</label>
-                            <input type="text" class="form-control" id="alfabeto" placeholder="Ej: 0,1">
+                            <label class="form-label">Estados del autómata</label>
+                            <input v-model="estadosInput" type="text" class="form-control" placeholder="Ej: q0,q1,q2">
                         </div>
                         <div class="mb-3">
-                            <label for="estadoInicial" class="form-label">Estado inicial</label>
-                            <select class="form-select" id="estadoInicial">
-                                <!-- Opciones se generan dinámicamente -->
+                            <label class="form-label">Alfabeto</label>
+                            <input v-model="alfabetoInput" type="text" class="form-control" placeholder="Ej: 0,1">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Estado inicial</label>
+                            <select v-model="afd.estadoInicial" class="form-select" :disabled="!generado">
+                                <option v-if="!generado" value="">Generá transiciones primero…</option>
+                                <option v-for="estado in afd.estados" :key="`init-${estado}`" :value="estado">{{ estado }}</option>
                             </select>
                         </div>
-
                         <div class="mb-3">
-                            <label for="estadosFinales" class="form-label">Estados finales</label>
-                            <input type="text" class="form-control" id="estadosFinales" placeholder="Ej: q2">
+                            <label class="form-label">Estados finales</label>
+                            <input v-model="estadosFinalesInput" type="text" class="form-control" placeholder="Ej: q2">
                         </div>
-                        <button id="generarTransicionesBtn" class="btn btn-dark w-100 ">
-                            <i class="bi bi-arrow-repeat"></i> Generar Transiciones
+                        <button class="btn app-btn w-100" @click="generarTransiciones">
+                            <i class="bi bi-arrow-repeat"></i> Generar transiciones
                         </button>
                     </div>
                 </div>
             </div>
-            <!-- Panel de transiciones -->
-            <div class="col-md-3 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-default text-white">
-                        <h2 class="h5 mb-0 text-dark">Transiciones</h2>
+
+            <div class="col-lg-3 mb-4">
+                <div class="card shadow-sm app-card">
+                    <div class="card-header app-card-header">
+                        <h2 class="h5 mb-0">Transiciones</h2>
                     </div>
                     <div class="card-body">
-                        <div id="transicionesContainer" class="mb-3">
-                            <!-- Campos generados dinámicamente -->
+                        <p v-if="!generado" class="small text-muted mb-0">Primero genera los estados y el alfabeto.</p>
+                        <div v-else>
+                            <div v-for="estado in afd.estados" :key="`from-${estado}`" class="mb-3 p-2 border rounded">
+                                <h5 class="fw-bold mb-2">Desde {{ estado }}:</h5>
+                                <div v-for="simbolo in afd.alfabeto" :key="`tr-${estado}-${simbolo}`" class="input-group mb-2">
+                                    <span class="input-group-text">{{ simbolo }} →</span>
+                                    <select v-model="afd.transiciones[estado][simbolo]" class="form-select">
+                                        <option v-for="destino in afd.estados" :key="`opt-${estado}-${simbolo}-${destino}`" :value="destino">
+                                            {{ destino }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel de prueba -->
-            <div class="col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm app-card">
+                    <div class="card-header app-card-header">
                         <h2 class="h5 mb-0">Probar AFD</h2>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
-                            <label for="cadenaPrueba" class="form-label">Cadena a evaluar</label>
-                            <input type="text" class="form-control" id="cadenaPrueba" placeholder="Ej: 0101">
+                            <label class="form-label">Cadena a evaluar</label>
+                            <input v-model="cadenaPrueba" type="text" class="form-control" placeholder="Ej: 0101" :disabled="!generado">
                         </div>
-
-                        <button id="probarAFDBtn" class="btn btn-dark w-100 mb-3">
-                            Probar Cadena
+                        <button class="btn app-btn w-100 mb-3" @click="probarCadena" :disabled="!generado">
+                            Probar cadena
                         </button>
 
-                        <div id="resultado" class="alert d-none">
+                        <div v-if="resultado.visible" class="alert" :class="resultado.aceptada ? 'alert-success' : 'alert-danger'">
                             <h4 class="alert-heading">Resultado</h4>
-                            <p id="resultadoTexto" class="mb-0"></p>
+                            <p class="mb-0">{{ resultado.mensaje }}</p>
                             <hr>
-                            <p id="caminoTexto" class="mb-0 small"></p>
+                            <p class="mb-0 small">Camino: {{ resultado.camino.join(' → ') }}</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row mt-2">
+        <div class="row mt-1">
             <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-default text-white d-flex align-items-center justify-content-between flex-wrap gap-2">
-                        <h2 class="h5 mb-0 text-dark">Diagrama de transición</h2>
-                        <div class="d-flex align-items-center gap-3 small text-secondary diagram-legend">
+                <div class="card shadow-sm app-card">
+                    <div class="card-header app-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <h2 class="h5 mb-0">Diagrama de transición</h2>
+                        <div class="d-flex align-items-center gap-3 small diagram-legend">
                             <span><span class="legend-swatch legend-initial"></span> Inicial</span>
                             <span><span class="legend-swatch legend-final"></span> Final</span>
                             <span><span class="legend-swatch legend-path"></span> Camino probado</span>
                         </div>
                     </div>
                     <div class="card-body p-0 position-relative">
-                        <p id="diagramaPlaceholder" class="text-muted text-center py-5 px-3 mb-0">
+                        <p v-if="!generado" class="text-muted text-center py-5 px-3 mb-0">
                             Genera las transiciones para ver el autómata aquí.
                         </p>
-                        <div id="cy" class="afd-diagram d-none"></div>
+                        <div id="cy" class="afd-diagram" :class="{ 'd-none': !generado }"></div>
                     </div>
                 </div>
             </div>
@@ -131,6 +138,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
     <script src="main.js"></script>
 </body>

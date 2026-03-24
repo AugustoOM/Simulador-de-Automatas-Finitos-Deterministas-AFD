@@ -1,58 +1,145 @@
+:root {
+    --accent: #5a10c1;
+    --bg: #f4f5f8;
+    --surface: #ffffff;
+    --input-bg: var(--surface);
+    --text: #1f2230;
+    --muted: #6d7481;
+    --border: #dee2e6;
+}
 
-/* Estilo para las tarjetas */
-.card {
-    border-radius: 0.5rem;
+body {
+    color-scheme: light;
+    background: var(--bg);
+    color: var(--text);
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+body[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #121523;
+    --surface: #1f2432;
+    --input-bg: #151a26;
+    --text: #edf0f8;
+    --muted: #b4bccb;
+    --border: #343a4d;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+.app-accent {
+    color: var(--accent);
+}
+
+.app-subtitle {
+    color: var(--muted);
+}
+
+.app-card {
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
     overflow: hidden;
+    transition: border-color 0.25s ease, background-color 0.25s ease;
 }
 
-/* Estilo para los campos de transición */
-.transicion-item {
-    border: 1px solid #dee2e6;
-    border-radius: 0.25rem;
-    padding: 0.75rem;
-    margin-bottom: 0.75rem;
+.app-card-header {
+    background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
 }
 
-.transicion-item:last-child {
-    margin-bottom: 0;
+.app-card .card-body,
+.app-card .form-label,
+.app-card h2,
+.app-card h5,
+.app-card p,
+.app-card span,
+.app-card .small {
+    color: var(--text);
 }
 
-/* Estilo para los selects de transición */
-.transicion-select {
-    flex-grow: 1;
-    margin-left: 0.5rem;
+.app-btn {
+    background: var(--accent);
+    color: #ffffff;
+    border: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
-/* Animación para el botón de generar */
-#generarTransicionesBtn {
-    transition: all 0.3s ease;
+.app-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+    color: #ffffff;
 }
 
-#generarTransicionesBtn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+.theme-toggle-btn {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 999px;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.95rem;
+    min-width: 118px;
+    width: 118px;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Estilo para el resultado */
-#resultado.aceptada {
-    background-color: #d1e7dd;
-    border-color: #badbcc;
-    color: #0f5132;
+.theme-toggle-btn:hover {
+    border-color: var(--accent);
 }
 
-#resultado.rechazada {
-    background-color: #f8d7da;
-    border-color: #f5c2c7;
-    color: #842029;
+.form-control,
+.form-select,
+.input-group-text {
+    background-color: var(--input-bg);
+    color: var(--text);
+    border-color: var(--border);
 }
 
-/* Diagrama Cytoscape */
+.form-control::placeholder {
+    color: var(--muted);
+    opacity: 1;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background-color: var(--input-bg);
+    color: var(--text);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 0.2rem rgba(90, 16, 193, 0.25);
+}
+
+body[data-theme="dark"] .form-select option {
+    background-color: var(--input-bg);
+    color: var(--text);
+}
+
+body[data-theme="dark"] .form-control:disabled,
+body[data-theme="dark"] .form-select:disabled {
+    background-color: var(--input-bg) !important;
+    color: var(--muted) !important;
+    opacity: 1;
+    border-color: var(--border);
+}
+
 .afd-diagram {
     width: 100%;
     min-height: 380px;
     height: min(55vh, 520px);
-    background: #fafbfc;
-    border-top: 1px solid #e9ecef;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+}
+
+.diagram-legend {
+    color: var(--muted);
 }
 
 .diagram-legend .legend-swatch {
@@ -66,7 +153,7 @@
 }
 
 .diagram-legend .legend-initial {
-    border-color: #0d6efd;
+    border-color: var(--accent);
     border-width: 3px;
 }
 
@@ -79,20 +166,4 @@
 .diagram-legend .legend-path {
     background: #fff3cd;
     border-color: #fd7e14;
-}
-
-.integrantes {
-    align-items: flex-start;
-}
-
-.integrante-item {
-    width: 210px;
-}
-
-.integrante-foto {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #dee2e6;
 }
