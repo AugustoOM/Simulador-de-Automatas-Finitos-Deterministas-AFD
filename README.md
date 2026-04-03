@@ -2,7 +2,7 @@
 
 ## Descripción
 
-Herramienta web interactiva para diseñar, configurar y probar **Autómatas Finitos Deterministas (AFD)**. Permite definir estados, alfabeto, transiciones, estado inicial y estados finales; evaluar cadenas; y visualizar el **diagrama de transición** con resaltado del camino recorrido.
+Herramienta web interactiva para diseñar, configurar y probar **Autómatas Finitos Deterministas (AFD)** y resolver ejercicios de **Autómatas de Pila (APD)**. Permite definir estados, alfabeto, transiciones, estado inicial y estados finales; evaluar cadenas; visualizar el **diagrama de transición** con resaltado del camino recorrido; y trabajar con una segunda página dedicada a problemas de pila.
 
 ---
 
@@ -20,6 +20,7 @@ https://main.d2c6qehfhp6tcg.amplifyapp.com/
 - **Configuración del AFD**: estados y alfabeto (listas separadas por comas), estado inicial, estados finales y tabla de transiciones generada dinámicamente.
 - **Simulación**: prueba de cadenas con mensaje de aceptación o rechazo y **camino de estados** mostrado en pantalla.
 - **Diagrama de transición**: grafo interactivo con [Cytoscape.js](https://js.cytoscape.org/); al probar una cadena se resaltan estados y aristas del recorrido (clic en el diagrama para quitar el resaltado).
+- **Segunda página de APD**: editor de transiciones tipo pila, simulación paso a paso y traza de configuración para resolver problemas clásicos como balanceo de paréntesis o lenguajes con estructura anidada.
 - **Interfaz con Vue 3**: formularios y estado reactivos ([Vue](https://vuejs.org/) vía CDN).
 - **Tema claro / oscuro**: botón fijo (🌙 / ☀️) en la esquina superior derecha; el tema se sincroniza con `data-bs-theme` de Bootstrap para formularios coherentes en ambos modos.
 - **Estilo**: color de acento **#5a10c1**; diseño responsive con Bootstrap 5.
@@ -46,6 +47,33 @@ Para cada estado y cada símbolo del alfabeto, elige el **estado destino** en el
 1. Escribe la cadena en **Cadena a evaluar** (ej. `0101`, `aab`).
 2. Pulsa **Probar cadena**.
 3. Verás si la cadena es **aceptada** o **rechazada** y el **camino** de estados. El diagrama inferior refleja el mismo recorrido resaltado.
+
+---
+
+## Página de APD
+
+La segunda página, accesible desde [pda.html](pda.html), permite plantear y resolver problemas de autómatas de pila.
+
+### Cómo describir las transiciones
+
+Cada línea usa este formato:
+
+```text
+estado_origen, simbolo_entrada, tope_pila -> estado_destino, reemplazo_pila
+```
+
+- Usa `ε` cuando la transición no consume entrada.
+- Usa `ε` en el reemplazo para indicar que solo se hace pop.
+- El reemplazo se interpreta de izquierda a derecha: el primer símbolo escrito queda arriba de la pila.
+
+### Qué muestra la simulación
+
+- Estado actual.
+- Entrada restante.
+- Pila en cada paso.
+- Secuencia completa de configuraciones y la transición aplicada.
+
+La página incluye un ejemplo cargable para problemas de paréntesis balanceados.
 
 ---
 
@@ -86,6 +114,8 @@ Para cada estado y cada símbolo del alfabeto, elige el **estado destino** en el
 Simulador-de-Automatas-Finitos-Deterministas-AFD/
 ├── index.html          # Shell de la app Vue y carga de scripts (CDN)
 ├── main.js             # Lógica del AFD, Vue y Cytoscape
+├── pda.html            # Segunda página para problemas de autómatas de pila
+├── pda.js              # Lógica del simulador de APD
 ├── styles.css          # Variables de tema, acento y modo oscuro
 └── README.md
 ```

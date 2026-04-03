@@ -37,6 +37,12 @@ body[data-theme="dark"] {
     color: var(--muted);
 }
 
+.page-nav .btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
 .app-card {
     border-radius: 0.75rem;
     border: 1px solid var(--border);
@@ -166,4 +172,40 @@ body[data-theme="dark"] .form-select:disabled {
 .diagram-legend .legend-path {
     background: #fff3cd;
     border-color: #fd7e14;
+}
+
+.problem-panel {
+    border-left: 4px solid var(--accent);
+}
+
+.transition-editor {
+    min-height: 320px;
+    font-family: Consolas, "Liberation Mono", monospace;
+}
+
+.stack-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.25rem 0.6rem;
+    background: color-mix(in srgb, var(--surface) 82%, var(--accent));
+}
+
+.trace-card {
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--surface) 90%, var(--accent));
+}
+
+.trace-card pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--text);
+}
+
+.trace-table {
+    font-size: 0.95rem;
 }
