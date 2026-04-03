@@ -195,6 +195,16 @@ body[data-theme="dark"] .form-select:disabled {
     background: color-mix(in srgb, var(--surface) 94%, var(--accent));
 }
 
+.transition-row .form-label {
+    white-space: nowrap;
+}
+
+.transition-row .form-select {
+    font-size: 0.95rem;
+    padding-right: 1.9rem;
+    background-size: 0.7rem 0.55rem;
+}
+
 .stack-chip {
     display: inline-flex;
     align-items: center;

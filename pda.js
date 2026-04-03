@@ -113,10 +113,11 @@ createApp({
         {
           selector: 'edge',
           style: {
-            width: 2,
+            width: 1.6,
             'line-color': edgeColor,
             'target-arrow-color': edgeColor,
             'target-arrow-shape': 'triangle',
+            'arrow-scale': 0.65,
             'curve-style': 'bezier',
             label: 'data(label)',
             color: textColor,
