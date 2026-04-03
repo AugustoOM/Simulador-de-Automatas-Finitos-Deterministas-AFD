@@ -66,9 +66,14 @@
                                 <option value="pila">Por pila vacía</option>
                             </select>
                         </div>
-                        <button class="btn app-btn w-100 mb-3" @click="cargarEjemplo">
-                            <i class="bi bi-magic"></i> Cargar ejemplo
-                        </button>
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn app-btn flex-grow-1" @click="cargarEjemplo">
+                                <i class="bi bi-parentheses"></i> Paréntesis
+                            </button>
+                            <button class="btn app-btn flex-grow-1" @click="cargarEjemploAB">
+                                <i class="bi bi-subscript"></i> a<sup>n</sup>b<sup>n</sup>
+                            </button>
+                        </div>
                         <button class="btn btn-outline-secondary w-100" @click="generarProblema">
                             <i class="bi bi-arrow-repeat"></i> Preparar simulación
                         </button>
@@ -85,10 +90,53 @@
                         <p class="small text-muted">
                             Formato: <strong>estado, entrada, tope -> nuevo_estado, reemplazo</strong>. Usa <strong>ε</strong> para transiciones sin consumir entrada o para quitar solo el tope.
                         </p>
-                        <textarea v-model="transicionesInput" class="form-control transition-editor flex-grow-1 mb-3" rows="14" spellcheck="false"></textarea>
+                        <div class="transition-builder flex-grow-1 mb-3">
+                            <div v-for="(transicion, index) in transicionesEditor" :key="`tr-row-${index}`" class="transition-row p-2 mb-2">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-6 col-xl-2">
+                                        <label class="form-label small mb-1">Estado</label>
+                                        <select v-model="transicion.origen" class="form-select form-select-sm">
+                                            <option v-for="estado in estadosOpciones" :key="`origen-${index}-${estado}`" :value="estado">{{ estado }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6 col-xl-2">
+                                        <label class="form-label small mb-1">Entrada</label>
+                                        <select v-model="transicion.entrada" class="form-select form-select-sm">
+                                            <option v-for="simbolo in entradaOpciones" :key="`entrada-${index}-${simbolo}`" :value="simbolo">{{ simbolo }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6 col-xl-2">
+                                        <label class="form-label small mb-1">Tope</label>
+                                        <select v-model="transicion.tope" class="form-select form-select-sm">
+                                            <option v-for="simbolo in pilaOpciones" :key="`tope-${index}-${simbolo}`" :value="simbolo">{{ simbolo }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-6 col-xl-3">
+                                        <label class="form-label small mb-1">Nuevo estado</label>
+                                        <select v-model="transicion.destino" class="form-select form-select-sm">
+                                            <option v-for="estado in estadosOpciones" :key="`destino-${index}-${estado}`" :value="estado">{{ estado }}</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-12 col-xl-3">
+                                        <label class="form-label small mb-1">Reemplazo</label>
+                                        <select v-model="transicion.reemplazo" class="form-select form-select-sm">
+                                            <option v-for="simbolo in reemplazoOpciones" :key="`reemplazo-${index}-${simbolo}`" :value="simbolo">{{ simbolo }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-center gap-2 mb-3">
+                            <button class="btn btn-outline-success btn-sm" @click="agregarTransicion" title="Agregar transición">
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" @click="eliminarTransicion" :disabled="transicionesEditor.length <= 1" title="Eliminar última transición">
+                                <i class="bi bi-dash-lg"></i>
+                            </button>
+                        </div>
                         <div class="d-flex flex-wrap gap-2 small">
-                            <span class="stack-chip"><strong>Entrada</strong> usa símbolos uno por uno</span>
-                            <span class="stack-chip"><strong>Reemplazo</strong> se empuja de izquierda a derecha</span>
+                            <span class="stack-chip"><strong>Entrada</strong> consume un símbolo o ε</span>
+                            <span class="stack-chip"><strong>Reemplazo</strong> permite símbolos de pila de 1 o 2 caracteres</span>
                         </div>
                     </div>
                 </div>
@@ -152,10 +200,31 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card shadow-sm app-card">
+                    <div class="card-header app-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <h2 class="h5 mb-0">Diagrama de transiciones del APD</h2>
+                        <div class="d-flex align-items-center gap-3 small diagram-legend">
+                            <span><span class="legend-swatch legend-initial"></span> Inicial</span>
+                            <span><span class="legend-swatch legend-final"></span> Final</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-0 position-relative">
+                        <p v-if="!generado" class="text-muted text-center py-5 px-3 mb-0">
+                            Prepara un problema para ver el diagrama de transiciones.
+                        </p>
+                        <div id="cy-pda" class="afd-diagram" :class="{ 'd-none': !generado }"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
     <script src="pda.js"></script>
 </body>
 

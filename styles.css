@@ -183,6 +183,18 @@ body[data-theme="dark"] .form-select:disabled {
     font-family: Consolas, "Liberation Mono", monospace;
 }
 
+.transition-builder {
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 0.1rem;
+}
+
+.transition-row {
+    border: 1px solid var(--border);
+    border-radius: 0.65rem;
+    background: color-mix(in srgb, var(--surface) 94%, var(--accent));
+}
+
 .stack-chip {
     display: inline-flex;
     align-items: center;
