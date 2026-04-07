@@ -231,3 +231,20 @@ body[data-theme="dark"] .form-select:disabled {
 .trace-table {
     font-size: 0.95rem;
 }
+
+.transition-table {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+.transition-table thead th {
+    background: color-mix(in srgb, var(--surface) 86%, var(--accent));
+    color: var(--text);
+    border-color: var(--border);
+}
+
+.transition-table th,
+.transition-table td {
+    color: var(--text);
+    border-color: var(--border);
+}

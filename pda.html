@@ -220,6 +220,41 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card shadow-sm app-card">
+                    <div class="card-header app-card-header">
+                        <h2 class="h5 mb-0">Tabla de transiciones del APD</h2>
+                    </div>
+                    <div class="card-body">
+                        <p v-if="!generado" class="small text-muted mb-0">Prepara la simulación para ver la tabla de transiciones.</p>
+                        <div v-else class="table-responsive">
+                            <table class="table table-sm align-middle transition-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Origen</th>
+                                        <th scope="col">Entrada</th>
+                                        <th scope="col">Tope</th>
+                                        <th scope="col">Destino</th>
+                                        <th scope="col">Reemplazo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(transicion, index) in apd.transiciones" :key="`tabla-apd-${index}`">
+                                        <td>{{ transicion.origen }}</td>
+                                        <td>{{ transicion.entrada }}</td>
+                                        <td>{{ transicion.tope }}</td>
+                                        <td>{{ transicion.destino }}</td>
+                                        <td>{{ transicion.reemplazo }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
