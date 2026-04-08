@@ -162,36 +162,6 @@
                             <p class="mb-0 small">Configuraciones evaluadas: {{ resultado.traza.length }}</p>
                         </div>
 
-                        <div class="trace-card p-3">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <strong>Traza</strong>
-                                <span class="small text-muted">Estado · Entrada restante · Pila</span>
-                            </div>
-                            <div v-if="!resultado.traza.length" class="text-muted small">
-                                La traza aparecerá aquí cuando resuelvas una cadena.
-                            </div>
-                            <div v-else class="table-responsive">
-                                <table class="table table-sm align-middle trace-table mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Paso</th>
-                                            <th>Estado</th>
-                                            <th>Entrada</th>
-                                            <th>Pila</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="(paso, index) in resultado.traza" :key="`paso-${index}`">
-                                            <td>{{ index }}</td>
-                                            <td>{{ paso.estado }}</td>
-                                            <td>{{ paso.entradaRestante }}</td>
-                                            <td>{{ paso.pila }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
                         <div class="mt-3">
                             <strong class="d-block mb-2">Transición aplicada</strong>
                             <pre class="trace-card p-3">{{ resultado.transicionAplicada || 'Sin transición todavía' }}</pre>
@@ -225,28 +195,26 @@
             <div class="col-12">
                 <div class="card shadow-sm app-card">
                     <div class="card-header app-card-header">
-                        <h2 class="h5 mb-0">Tabla de transiciones del APD</h2>
+                        <h2 class="h5 mb-0">Traza de simulación</h2>
                     </div>
                     <div class="card-body">
-                        <p v-if="!generado" class="small text-muted mb-0">Prepara la simulación para ver la tabla de transiciones.</p>
+                        <p v-if="!resultado.traza.length" class="small text-muted mb-0">La traza aparecerá aquí cuando resuelvas una cadena.</p>
                         <div v-else class="table-responsive">
-                            <table class="table table-sm align-middle transition-table mb-0">
+                            <table class="table table-sm align-middle trace-table mb-0">
                                 <thead>
                                     <tr>
-                                        <th scope="col">Origen</th>
+                                        <th scope="col">Paso</th>
+                                        <th scope="col">Estado</th>
                                         <th scope="col">Entrada</th>
-                                        <th scope="col">Tope</th>
-                                        <th scope="col">Destino</th>
-                                        <th scope="col">Reemplazo</th>
+                                        <th scope="col">Pila</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="(transicion, index) in apd.transiciones" :key="`tabla-apd-${index}`">
-                                        <td>{{ transicion.origen }}</td>
-                                        <td>{{ transicion.entrada }}</td>
-                                        <td>{{ transicion.tope }}</td>
-                                        <td>{{ transicion.destino }}</td>
-                                        <td>{{ transicion.reemplazo }}</td>
+                                    <tr v-for="(paso, index) in resultado.traza" :key="`paso-diagrama-${index}`">
+                                        <td>{{ index }}</td>
+                                        <td>{{ paso.estado }}</td>
+                                        <td>{{ paso.entradaRestante }}</td>
+                                        <td>{{ paso.pila }}</td>
                                     </tr>
                                 </tbody>
                             </table>
