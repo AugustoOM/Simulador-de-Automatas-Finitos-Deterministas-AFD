@@ -8,7 +8,7 @@ createApp({
     return {
       theme: 'light',
       generado: false,
-      estadosInput: 'q0,q1,qf',
+      estadosInput: 'q0,qf',
       alfabetoInput: '(,)',
       pilaAlfabetoInput: 'Z,(',
       estadoInicialInput: 'q0',
