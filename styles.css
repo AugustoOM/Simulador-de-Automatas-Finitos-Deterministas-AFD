@@ -77,6 +77,16 @@ body[data-theme="dark"] {
 .app-btn:hover {
     transform: translateY(-1px);
     opacity: 0.95;
+    background-color: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+}
+
+.app-btn:focus,
+.app-btn:focus-visible,
+.app-btn:active {
+    background-color: var(--accent);
+    border-color: var(--accent);
     color: #ffffff;
 }
 
